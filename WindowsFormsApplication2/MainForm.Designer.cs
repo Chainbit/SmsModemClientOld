@@ -315,6 +315,7 @@
             this.DecodeButton.TabIndex = 5;
             this.DecodeButton.Text = "Decode";
             this.DecodeButton.UseVisualStyleBackColor = true;
+            this.DecodeButton.Click += new System.EventHandler(this.DecodeButton_Click);
             // 
             // MainForm
             // 

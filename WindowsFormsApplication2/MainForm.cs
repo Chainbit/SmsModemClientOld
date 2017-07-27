@@ -190,7 +190,7 @@ namespace WindowsFormsApplication2
                 selectedPort.AtCommand("AT+CMGL=\"ALL\"");
                 do
                 {
-                    Thread.Sleep(500);
+                    Thread.Sleep(1000);
                 }
                 while (!selectedPort.isRecieved);
                 //предварительно очищаем таблицу
@@ -226,6 +226,11 @@ namespace WindowsFormsApplication2
                     MessageBox.Show("Ничего не выбрано!");
                 }
             }
+        }
+
+        private void DecodeButton_Click(object sender, EventArgs e)
+        {
+            SMStext.Text = Decode.USC2ToString(SMStext.Text) + Environment.NewLine + Decode.Decode7bit(SMStext.Text);
         }
     }
 }
