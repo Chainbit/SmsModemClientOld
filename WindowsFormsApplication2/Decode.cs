@@ -30,15 +30,21 @@ namespace WindowsFormsApplication2
                 catch (Exception ex)
                 {
                 }
+                try
+                {
                 string ss = str.Substring(i, 2);
                 ucs2[j] = Convert.ToByte(ss, 16);
                 j++;
+                }
+                catch (Exception ex)
+                {
+                }
 
             }
 
             // Получаем из массива чистый юникод. "Ядра - чистый юникод... " Ай да Пушкин, он знал ... о_О 
 
-            str = Encoding.UTF8.GetString(ucs2);
+            str = Encoding.Unicode.GetString(ucs2);
 
             return str;
         }
@@ -87,7 +93,7 @@ namespace WindowsFormsApplication2
             }
             catch (Exception ex)
             {
-                return ex.Message;
+                return "Ошибка: "+ex.Message;
             }
         }
 

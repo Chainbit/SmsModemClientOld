@@ -190,7 +190,7 @@ namespace WindowsFormsApplication2
                 selectedPort.AtCommand("AT+CMGL=\"ALL\"");
                 do
                 {
-                    Thread.Sleep(1000);
+                    Thread.Sleep(500);
                 }
                 while (!selectedPort.isRecieved);
                 //предварительно очищаем таблицу
