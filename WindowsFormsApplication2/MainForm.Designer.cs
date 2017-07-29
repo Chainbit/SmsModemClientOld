@@ -43,15 +43,16 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.commandsTab = new System.Windows.Forms.TabPage();
             this.SMSListTab = new System.Windows.Forms.TabPage();
-            this.getSMSListButton = new System.Windows.Forms.Button();
+            this.DecodeButton = new System.Windows.Forms.Button();
+            this.SMStext = new System.Windows.Forms.TextBox();
+            this.SMStime = new System.Windows.Forms.TextBox();
+            this.SMSsender = new System.Windows.Forms.TextBox();
             this.SMSList = new System.Windows.Forms.DataGridView();
+            this.getSMSListButton = new System.Windows.Forms.Button();
             this.index = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.sender = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.timeStamp = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.SMSsender = new System.Windows.Forms.TextBox();
-            this.SMStime = new System.Windows.Forms.TextBox();
-            this.SMStext = new System.Windows.Forms.TextBox();
-            this.DecodeButton = new System.Windows.Forms.Button();
+            this.text = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.panel1.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -230,15 +231,42 @@
             this.SMSListTab.Text = "Получение СМС";
             this.SMSListTab.UseVisualStyleBackColor = true;
             // 
-            // getSMSListButton
+            // DecodeButton
             // 
-            this.getSMSListButton.Location = new System.Drawing.Point(51, 162);
-            this.getSMSListButton.Name = "getSMSListButton";
-            this.getSMSListButton.Size = new System.Drawing.Size(132, 23);
-            this.getSMSListButton.TabIndex = 0;
-            this.getSMSListButton.Text = "Получить список СМС";
-            this.getSMSListButton.UseVisualStyleBackColor = true;
-            this.getSMSListButton.Click += new System.EventHandler(this.getSMSListButton_Click);
+            this.DecodeButton.Location = new System.Drawing.Point(518, 6);
+            this.DecodeButton.Name = "DecodeButton";
+            this.DecodeButton.Size = new System.Drawing.Size(75, 22);
+            this.DecodeButton.TabIndex = 5;
+            this.DecodeButton.Text = "Decode";
+            this.DecodeButton.UseVisualStyleBackColor = true;
+            this.DecodeButton.Click += new System.EventHandler(this.DecodeButton_Click);
+            // 
+            // SMStext
+            // 
+            this.SMStext.CharacterCasing = System.Windows.Forms.CharacterCasing.Lower;
+            this.SMStext.Location = new System.Drawing.Point(190, 32);
+            this.SMStext.Multiline = true;
+            this.SMStext.Name = "SMStext";
+            this.SMStext.ReadOnly = true;
+            this.SMStext.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.SMStext.Size = new System.Drawing.Size(403, 124);
+            this.SMStext.TabIndex = 4;
+            // 
+            // SMStime
+            // 
+            this.SMStime.Location = new System.Drawing.Point(369, 7);
+            this.SMStime.Name = "SMStime";
+            this.SMStime.ReadOnly = true;
+            this.SMStime.Size = new System.Drawing.Size(143, 20);
+            this.SMStime.TabIndex = 3;
+            // 
+            // SMSsender
+            // 
+            this.SMSsender.Location = new System.Drawing.Point(190, 7);
+            this.SMSsender.Name = "SMSsender";
+            this.SMSsender.ReadOnly = true;
+            this.SMSsender.Size = new System.Drawing.Size(173, 20);
+            this.SMSsender.TabIndex = 2;
             // 
             // SMSList
             // 
@@ -248,7 +276,8 @@
             this.SMSList.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.index,
             this.sender,
-            this.timeStamp});
+            this.timeStamp,
+            this.text});
             this.SMSList.Location = new System.Drawing.Point(8, 6);
             this.SMSList.Name = "SMSList";
             this.SMSList.ReadOnly = true;
@@ -256,6 +285,16 @@
             this.SMSList.Size = new System.Drawing.Size(175, 150);
             this.SMSList.TabIndex = 1;
             this.SMSList.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.SMSList_CellContentClick);
+            // 
+            // getSMSListButton
+            // 
+            this.getSMSListButton.Location = new System.Drawing.Point(51, 162);
+            this.getSMSListButton.Name = "getSMSListButton";
+            this.getSMSListButton.Size = new System.Drawing.Size(132, 23);
+            this.getSMSListButton.TabIndex = 0;
+            this.getSMSListButton.Text = "Получить список СМС";
+            this.getSMSListButton.UseVisualStyleBackColor = true;
+            this.getSMSListButton.Click += new System.EventHandler(this.getSMSListButton_Click);
             // 
             // index
             // 
@@ -280,42 +319,12 @@
             this.timeStamp.Name = "timeStamp";
             this.timeStamp.ReadOnly = true;
             // 
-            // SMSsender
+            // text
             // 
-            this.SMSsender.Location = new System.Drawing.Point(190, 7);
-            this.SMSsender.Name = "SMSsender";
-            this.SMSsender.ReadOnly = true;
-            this.SMSsender.Size = new System.Drawing.Size(173, 20);
-            this.SMSsender.TabIndex = 2;
-            // 
-            // SMStime
-            // 
-            this.SMStime.Location = new System.Drawing.Point(369, 7);
-            this.SMStime.Name = "SMStime";
-            this.SMStime.ReadOnly = true;
-            this.SMStime.Size = new System.Drawing.Size(143, 20);
-            this.SMStime.TabIndex = 3;
-            // 
-            // SMStext
-            // 
-            this.SMStext.CharacterCasing = System.Windows.Forms.CharacterCasing.Lower;
-            this.SMStext.Location = new System.Drawing.Point(190, 32);
-            this.SMStext.Multiline = true;
-            this.SMStext.Name = "SMStext";
-            this.SMStext.ReadOnly = true;
-            this.SMStext.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.SMStext.Size = new System.Drawing.Size(403, 124);
-            this.SMStext.TabIndex = 4;
-            // 
-            // DecodeButton
-            // 
-            this.DecodeButton.Location = new System.Drawing.Point(518, 6);
-            this.DecodeButton.Name = "DecodeButton";
-            this.DecodeButton.Size = new System.Drawing.Size(75, 22);
-            this.DecodeButton.TabIndex = 5;
-            this.DecodeButton.Text = "Decode";
-            this.DecodeButton.UseVisualStyleBackColor = true;
-            this.DecodeButton.Click += new System.EventHandler(this.DecodeButton_Click);
+            this.text.HeaderText = "Текст";
+            this.text.Name = "text";
+            this.text.ReadOnly = true;
+            this.text.Visible = false;
             // 
             // MainForm
             // 
@@ -361,13 +370,14 @@
         private System.Windows.Forms.TabPage SMSListTab;
         private System.Windows.Forms.Button getSMSListButton;
         private System.Windows.Forms.DataGridView SMSList;
-        private System.Windows.Forms.DataGridViewTextBoxColumn index;
-        private System.Windows.Forms.DataGridViewTextBoxColumn sender;
-        private System.Windows.Forms.DataGridViewTextBoxColumn timeStamp;
         private System.Windows.Forms.TextBox SMStext;
         private System.Windows.Forms.TextBox SMStime;
         private System.Windows.Forms.TextBox SMSsender;
         private System.Windows.Forms.Button DecodeButton;
+        private System.Windows.Forms.DataGridViewTextBoxColumn index;
+        private System.Windows.Forms.DataGridViewTextBoxColumn sender;
+        private System.Windows.Forms.DataGridViewTextBoxColumn timeStamp;
+        private System.Windows.Forms.DataGridViewTextBoxColumn text;
     }
 }
 

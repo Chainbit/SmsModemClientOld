@@ -181,35 +181,32 @@ namespace WindowsFormsApplication2
             }
         }
 
-        private void getSMSListButton_Click(object sender, EventArgs e)
+        private async void getSMSListButton_Click(object sender, EventArgs e)
         {
+            getSMSListButton.Enabled = false;
+
             if (selectedPort != null)
             {
-                selectedPort.Inbox.Clear();
+                var inbox = await getSms();
 
-                selectedPort.AtCommand("AT+CMGL=\"ALL\"");
-                do
-                {
-                    Thread.Sleep(500);
-                }
-                while (!selectedPort.isRecieved);
                 //предварительно очищаем таблицу
                 SMSList.Rows.Clear();
-                for (int i = 0; i < selectedPort.Inbox.Count; i++)
+                for (int i = 0; i < inbox.Count; i++)
                 {
                     //заполняем датагрид
                     SMSList.Rows.Add();
-                    SMSList.Rows[i].Cells["index"].Value = selectedPort.Inbox[i].Index;
-                    SMSList.Rows[i].Cells["sender"].Value = selectedPort.Inbox[i].Sender;
-                    SMSList.Rows[i].Cells["timeStamp"].Value = selectedPort.Inbox[i].Date;
+                    SMSList.Rows[i].Cells["index"].Value = inbox[i].Index;
+                    SMSList.Rows[i].Cells["sender"].Value = inbox[i].Sender;
+                    SMSList.Rows[i].Cells["timeStamp"].Value = inbox[i].Date;
+                    SMSList.Rows[i].Cells["text"].Value = inbox[i].Message;
                 }
             }
+            getSMSListButton.Enabled = true;
         }
 
         private void SMSList_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             var senderGrid = (DataGridView)sender;
-            var senderRow = senderGrid.CurrentRow.Index;
             
             if (senderGrid.Columns[e.ColumnIndex] is DataGridViewColumn &&
                 e.RowIndex >= 0)
@@ -219,7 +216,7 @@ namespace WindowsFormsApplication2
                     int index = (int)senderGrid.Rows[e.RowIndex].Cells["index"].Value;
                     SMSsender.Text = senderGrid.Rows[e.RowIndex].Cells["sender"].Value.ToString();
                     SMStime.Text = senderGrid.Rows[e.RowIndex].Cells["timeStamp"].Value.ToString();
-                    SMStext.Text = selectedPort.Inbox.Find(sms => sms.Index == index).Message;
+                    SMStext.Text = senderGrid.Rows[e.RowIndex].Cells["text"].Value.ToString(); ;
                 }
                 catch (NullReferenceException)
                 {
@@ -231,6 +228,23 @@ namespace WindowsFormsApplication2
         private void DecodeButton_Click(object sender, EventArgs e)
         {
             SMStext.Text = Decode.USC2ToString(SMStext.Text) + Environment.NewLine + Decode.Decode7bit(SMStext.Text);
+        }
+
+        private Task<List<RecievedSMS>> getSms()
+        {
+            return Task.Run(() =>
+            {                
+                selectedPort.Inbox.Clear();
+
+                selectedPort.AtCommand("AT+CMGL=\"ALL\"");
+                do
+                {
+                    Thread.Sleep(500);
+                }
+                while (!selectedPort.isRecieved);
+
+                return selectedPort.Inbox;
+            });
         }
     }
 }
