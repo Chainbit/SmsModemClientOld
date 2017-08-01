@@ -13,8 +13,15 @@ namespace WindowsFormsApplication2
         public SerialPort sp { get; private set; }
         public string message = string.Empty;
         public string Name { get; private set; }
+        public string Operator { get; set; }
+        public string TelNumber { get; set; }
         public MainForm MF;
         public List<RecievedSMS> Inbox { get; set; }
+
+        /// <summary>
+        /// Ответ от порта
+        /// </summary>
+        private string response = string.Empty;
 
         public bool isRecieved;
         public EventWaitHandle waitForResponse = new EventWaitHandle(true, EventResetMode.ManualReset);
@@ -45,39 +52,56 @@ namespace WindowsFormsApplication2
 
         private void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
         {
-            isRecieved = true;
-            string response;
-            waitForResponse.Set();
-            SerialPort sp = (SerialPort)sender;
+            RecieveData();
+        }
+
+        public void RecieveData()
+        {
             //кодировка порта
             sp.Encoding = Encoding.ASCII;
             //получаем ответ строкой
-            response = sp.ReadExisting();
+            var temp = sp.ReadExisting();
+
+            CheckResponse(temp);
+
             ////получаем ответ в байтах
             //byte[] data = new byte[sp.BytesToRead];
             //sp.Read(data, 0, data.Length);
-            if(ModemMode == Mode.RecieveSMS)
+
+            if (isRecieved)
             {
-                ParseSMS(response);
+                switch (ModemMode)
+                {
+                    case Mode.Check:
+                        break;
+                    case Mode.Commands:
+                        MF.PrintMessage(response);
+                        break;
+                    case Mode.RecieveSMS:
+                        ParseSMS(response);
+                        break;
+                    default:
+                        break;
+                }
             }
-            else
-            {
-                MF.PrintMessage(response);
-            }
-            //MF.PrintMessage(data);
         }
 
+        /// <summary>
+        /// Отправить AT-команду в порт
+        /// </summary>
+        /// <param name="command"></param>
         public void AtCommand(string command)
         {
             isRecieved = false;
-            //sp.Open();
+
             sp.WriteLine(command + " \r\n");
-            //waitForResponse.WaitOne();
-            //Thread.Sleep(500);
-            //sp.Close();
+
         }
 
-
+        /// <summary>
+        /// Представление ответа как списка СМС
+        /// </summary>
+        /// <param name="response">Ответ</param>
         private void ParseSMS(string response)
         {
             string data = string.Empty;
@@ -116,10 +140,54 @@ namespace WindowsFormsApplication2
         {
             AtCommand("AT+CMGL=\"ALL\"");
         }
+
+        /// <summary>
+        /// Проверка, пришел ли полный ответ
+        /// </summary>
+        /// <param name="msg">часть ответа</param>
+        private void CheckResponse(string msg)
+        {
+            response += msg;
+            if (msg.EndsWith("\r\nOK\r\n"))
+            {
+                isRecieved = true;
+            }
+            else if (msg.Contains("OK"))
+            {
+                isRecieved = true;
+            }
+        }
+
+        /// <summary>
+        /// Проверка на ответ от порта
+        /// </summary>
+        /// <returns></returns>
+        public Task ResponseRecieved()
+        {
+            return Task.Run(() =>
+            {
+                while (!isRecieved)
+                {
+                    try
+                    {
+                        RecieveData();
+                    }
+                    catch (Exception e)
+                    {
+
+                        throw;
+                    }
+                    Thread.Sleep(100);
+                }
+                return;
+            });
+        }
+
     }
 
     public enum Mode
     {
+        Check,
         Commands,
         RecieveSMS
     }

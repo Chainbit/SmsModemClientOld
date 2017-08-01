@@ -48,11 +48,15 @@
             this.SMStime = new System.Windows.Forms.TextBox();
             this.SMSsender = new System.Windows.Forms.TextBox();
             this.SMSList = new System.Windows.Forms.DataGridView();
-            this.getSMSListButton = new System.Windows.Forms.Button();
             this.index = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.sender = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.timeStamp = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.text = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.getSMSListButton = new System.Windows.Forms.Button();
+            this.deleteMessageButton = new System.Windows.Forms.Button();
+            this.SMSindex = new System.Windows.Forms.TextBox();
+            this.deleteAllButton = new System.Windows.Forms.Button();
+            this.getResponseButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.panel1.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -63,6 +67,8 @@
             // 
             // dataGridView1
             // 
+            this.dataGridView1.AllowUserToAddRows = false;
+            this.dataGridView1.AllowUserToDeleteRows = false;
             this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -123,7 +129,7 @@
             this.loadComsButton.Name = "loadComsButton";
             this.loadComsButton.Size = new System.Drawing.Size(585, 31);
             this.loadComsButton.TabIndex = 1;
-            this.loadComsButton.Text = "Получить список портов";
+            this.loadComsButton.Text = "Обновить список портов";
             this.loadComsButton.UseVisualStyleBackColor = true;
             this.loadComsButton.Click += new System.EventHandler(this.loadComsButton_Click);
             // 
@@ -162,14 +168,14 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.request.Location = new System.Drawing.Point(8, 13);
             this.request.Name = "request";
-            this.request.Size = new System.Drawing.Size(500, 20);
+            this.request.Size = new System.Drawing.Size(393, 20);
             this.request.TabIndex = 5;
             this.request.KeyDown += new System.Windows.Forms.KeyEventHandler(this.request_KeyDown);
             // 
             // sendButton
             // 
             this.sendButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.sendButton.Location = new System.Drawing.Point(522, 6);
+            this.sendButton.Location = new System.Drawing.Point(407, 6);
             this.sendButton.Name = "sendButton";
             this.sendButton.Size = new System.Drawing.Size(71, 33);
             this.sendButton.TabIndex = 6;
@@ -204,6 +210,7 @@
             // 
             // commandsTab
             // 
+            this.commandsTab.Controls.Add(this.getResponseButton);
             this.commandsTab.Controls.Add(this.response);
             this.commandsTab.Controls.Add(this.sendButton);
             this.commandsTab.Controls.Add(this.request);
@@ -217,9 +224,12 @@
             // 
             // SMSListTab
             // 
+            this.SMSListTab.Controls.Add(this.deleteAllButton);
+            this.SMSListTab.Controls.Add(this.deleteMessageButton);
             this.SMSListTab.Controls.Add(this.DecodeButton);
             this.SMSListTab.Controls.Add(this.SMStext);
             this.SMSListTab.Controls.Add(this.SMStime);
+            this.SMSListTab.Controls.Add(this.SMSindex);
             this.SMSListTab.Controls.Add(this.SMSsender);
             this.SMSListTab.Controls.Add(this.SMSList);
             this.SMSListTab.Controls.Add(this.getSMSListButton);
@@ -233,6 +243,7 @@
             // 
             // DecodeButton
             // 
+            this.DecodeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.DecodeButton.Location = new System.Drawing.Point(518, 6);
             this.DecodeButton.Name = "DecodeButton";
             this.DecodeButton.Size = new System.Drawing.Size(75, 22);
@@ -243,6 +254,8 @@
             // 
             // SMStext
             // 
+            this.SMStext.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.SMStext.CharacterCasing = System.Windows.Forms.CharacterCasing.Lower;
             this.SMStext.Location = new System.Drawing.Point(190, 32);
             this.SMStext.Multiline = true;
@@ -254,6 +267,8 @@
             // 
             // SMStime
             // 
+            this.SMStime.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.SMStime.Location = new System.Drawing.Point(369, 7);
             this.SMStime.Name = "SMStime";
             this.SMStime.ReadOnly = true;
@@ -262,39 +277,32 @@
             // 
             // SMSsender
             // 
-            this.SMSsender.Location = new System.Drawing.Point(190, 7);
+            this.SMSsender.Location = new System.Drawing.Point(219, 7);
             this.SMSsender.Name = "SMSsender";
             this.SMSsender.ReadOnly = true;
-            this.SMSsender.Size = new System.Drawing.Size(173, 20);
+            this.SMSsender.Size = new System.Drawing.Size(144, 20);
             this.SMSsender.TabIndex = 2;
             // 
             // SMSList
             // 
             this.SMSList.AllowUserToAddRows = false;
             this.SMSList.AllowUserToDeleteRows = false;
+            this.SMSList.AllowUserToResizeRows = false;
             this.SMSList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.SMSList.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.index,
             this.sender,
             this.timeStamp,
             this.text});
+            this.SMSList.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
             this.SMSList.Location = new System.Drawing.Point(8, 6);
+            this.SMSList.MultiSelect = false;
             this.SMSList.Name = "SMSList";
             this.SMSList.ReadOnly = true;
             this.SMSList.RowHeadersVisible = false;
             this.SMSList.Size = new System.Drawing.Size(175, 150);
             this.SMSList.TabIndex = 1;
             this.SMSList.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.SMSList_CellContentClick);
-            // 
-            // getSMSListButton
-            // 
-            this.getSMSListButton.Location = new System.Drawing.Point(51, 162);
-            this.getSMSListButton.Name = "getSMSListButton";
-            this.getSMSListButton.Size = new System.Drawing.Size(132, 23);
-            this.getSMSListButton.TabIndex = 0;
-            this.getSMSListButton.Text = "Получить список СМС";
-            this.getSMSListButton.UseVisualStyleBackColor = true;
-            this.getSMSListButton.Click += new System.EventHandler(this.getSMSListButton_Click);
             // 
             // index
             // 
@@ -325,6 +333,57 @@
             this.text.Name = "text";
             this.text.ReadOnly = true;
             this.text.Visible = false;
+            // 
+            // getSMSListButton
+            // 
+            this.getSMSListButton.Location = new System.Drawing.Point(51, 162);
+            this.getSMSListButton.Name = "getSMSListButton";
+            this.getSMSListButton.Size = new System.Drawing.Size(132, 23);
+            this.getSMSListButton.TabIndex = 0;
+            this.getSMSListButton.Text = "Получить список СМС";
+            this.getSMSListButton.UseVisualStyleBackColor = true;
+            this.getSMSListButton.Click += new System.EventHandler(this.getSMSListButton_Click);
+            // 
+            // deleteMessageButton
+            // 
+            this.deleteMessageButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.deleteMessageButton.Location = new System.Drawing.Point(518, 162);
+            this.deleteMessageButton.Name = "deleteMessageButton";
+            this.deleteMessageButton.Size = new System.Drawing.Size(75, 23);
+            this.deleteMessageButton.TabIndex = 6;
+            this.deleteMessageButton.Text = "Удалить";
+            this.deleteMessageButton.UseVisualStyleBackColor = true;
+            this.deleteMessageButton.Click += new System.EventHandler(this.deleteMessageButton_Click);
+            // 
+            // SMSindex
+            // 
+            this.SMSindex.Location = new System.Drawing.Point(190, 7);
+            this.SMSindex.Name = "SMSindex";
+            this.SMSindex.ReadOnly = true;
+            this.SMSindex.Size = new System.Drawing.Size(23, 20);
+            this.SMSindex.TabIndex = 2;
+            // 
+            // deleteAllButton
+            // 
+            this.deleteAllButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.deleteAllButton.Location = new System.Drawing.Point(419, 162);
+            this.deleteAllButton.Name = "deleteAllButton";
+            this.deleteAllButton.Size = new System.Drawing.Size(93, 23);
+            this.deleteAllButton.TabIndex = 6;
+            this.deleteAllButton.Text = "Удалить все";
+            this.deleteAllButton.UseVisualStyleBackColor = true;
+            this.deleteAllButton.Click += new System.EventHandler(this.deleteAllButton_Click);
+            // 
+            // getResponseButton
+            // 
+            this.getResponseButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.getResponseButton.Location = new System.Drawing.Point(484, 6);
+            this.getResponseButton.Name = "getResponseButton";
+            this.getResponseButton.Size = new System.Drawing.Size(112, 33);
+            this.getResponseButton.TabIndex = 8;
+            this.getResponseButton.Text = "Прочитать вручную";
+            this.getResponseButton.UseVisualStyleBackColor = true;
+            this.getResponseButton.Click += new System.EventHandler(this.getResponseButton_Click);
             // 
             // MainForm
             // 
@@ -378,6 +437,10 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn sender;
         private System.Windows.Forms.DataGridViewTextBoxColumn timeStamp;
         private System.Windows.Forms.DataGridViewTextBoxColumn text;
+        private System.Windows.Forms.Button deleteMessageButton;
+        private System.Windows.Forms.TextBox SMSindex;
+        private System.Windows.Forms.Button deleteAllButton;
+        private System.Windows.Forms.Button getResponseButton;
     }
 }
 

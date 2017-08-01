@@ -24,15 +24,33 @@ namespace WindowsFormsApplication2
         public MainForm()
         {
             InitializeComponent();
-            manager = new ComPortManager(this);
         }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            manager = new ComPortManager(this);
+            FillDatagrid1();
         }
+
         // кнопка "загрузить ком-порты"
-        private void loadComsButton_Click(object sender, EventArgs e)
+        private async void loadComsButton_Click(object sender, EventArgs e)
         {
+            (sender as Button).Enabled = false;
+            //Ждкм выполнения команды
+            await manager.GetModemPortsAsync();
+
+            FillDatagrid1();
+
+            (sender as Button).Enabled = true;
+        }
+
+        private void FillDatagrid1()
+        {
+            if (selectedPort != null)
+            {
+                selectedPort.sp.Close();
+                selectedPort = null;
+            }
             //очищаем все
             dataGridView1.Rows.Clear();
             for (int i = 0; i < manager.activeComs.Count; i++)
@@ -51,7 +69,7 @@ namespace WindowsFormsApplication2
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             var senderGrid = (DataGridView)sender;
-            var senderRow = senderGrid.CurrentRow.Index;
+            //var senderRow = senderGrid.CurrentRow.Index;
             try
             {
                 selectedPort.sp.Close();
@@ -72,8 +90,11 @@ namespace WindowsFormsApplication2
                     selectedPortName.Text = selectedPort.Name;
                     selectedPort.sp.Open();
                     selectedPort.MF = this;
-
-                    CheckOpen(senderRow);
+                    foreach (DataGridViewRow row in senderGrid.Rows)
+                    {
+                        CheckOpen(row.Index);
+                    }
+                    
                 }
                 catch (NullReferenceException)
                 {
@@ -82,18 +103,27 @@ namespace WindowsFormsApplication2
             }
         }
 
+        // послать команду на Enter
         private void request_KeyDown(object sender, KeyEventArgs e)
         {
+            selectedPort.ModemMode = Mode.Commands;
             if (selectedPort != null && e.KeyCode == Keys.Enter)
             {
                 selectedPort.AtCommand(request.Text);
             }
         }
 
-        private void sendButton_Click(object sender, EventArgs e)
+        // послать команду на Click
+        private async void sendButton_Click(object sender, EventArgs e)
         {
+            sendButton.Enabled = false;
+            await selectedPort.ResponseRecieved();
+
+            selectedPort.ModemMode = Mode.Commands;
             if (selectedPort != null)
             selectedPort.AtCommand(request.Text);
+
+            sendButton.Enabled = true;
         }
 
         // метод для отображения сообщения с ком-порта в виде строки
@@ -131,6 +161,7 @@ namespace WindowsFormsApplication2
             //UpdateTextBox(unicode.ToString());
         }
 
+        // обновление текстбокса
         private void UpdateTextBox(string str)
         {
             if (response.TextLength > response.MaxLength)
@@ -143,7 +174,6 @@ namespace WindowsFormsApplication2
             response.ScrollToCaret();
         }
 
-
         /// <summary>
         /// метод для перекраски ячеек
         /// </summary>
@@ -151,6 +181,7 @@ namespace WindowsFormsApplication2
         private void CheckOpen(int i)
         {
             dataGridView1.Rows[i].Cells["isOpen"].Value = manager.activeComs[i].sp.IsOpen;
+            var x = dataGridView1.Rows[i].Cells["ComPortName"].Value;
 
             if (manager.activeComs[i].sp.IsOpen == false)
             {
@@ -162,6 +193,7 @@ namespace WindowsFormsApplication2
             }
         }
 
+        // возможно не нужно
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
             try
@@ -181,29 +213,37 @@ namespace WindowsFormsApplication2
             }
         }
 
-        private async void getSMSListButton_Click(object sender, EventArgs e)
+        // обработчик нажатия на "Получить список смс"
+        private void getSMSListButton_Click(object sender, EventArgs e)
         {
-            getSMSListButton.Enabled = false;
-
-            if (selectedPort != null)
-            {
-                var inbox = await getSms();
-
-                //предварительно очищаем таблицу
-                SMSList.Rows.Clear();
-                for (int i = 0; i < inbox.Count; i++)
-                {
-                    //заполняем датагрид
-                    SMSList.Rows.Add();
-                    SMSList.Rows[i].Cells["index"].Value = inbox[i].Index;
-                    SMSList.Rows[i].Cells["sender"].Value = inbox[i].Sender;
-                    SMSList.Rows[i].Cells["timeStamp"].Value = inbox[i].Date;
-                    SMSList.Rows[i].Cells["text"].Value = inbox[i].Message;
-                }
-            }
-            getSMSListButton.Enabled = true;
+            getSMSList();
         }
 
+        /// <summary>
+        /// Получить список смс и загрузить его в таблицу
+        /// </summary>
+        private async void getSMSList()
+        {
+            selectedPort.ModemMode = Mode.RecieveSMS;
+            if (selectedPort != null)
+            {
+                SMSList.Rows.Clear();
+                // отключаем кнопку
+                getSMSListButton.Enabled = false;
+                var temp = getSMSListButton.Text;
+                getSMSListButton.Text = "Зарузка...";
+
+                //ждем входящие
+                var inbox = await LoadSmsInbox();
+                // заполняем таблицу
+                FillSMSTable(inbox);
+
+                getSMSListButton.Text = temp;
+                getSMSListButton.Enabled = true;
+            }
+        }
+
+        //Выбор СМСки
         private void SMSList_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             var senderGrid = (DataGridView)sender;
@@ -213,10 +253,10 @@ namespace WindowsFormsApplication2
             {
                 try
                 {
-                    int index = (int)senderGrid.Rows[e.RowIndex].Cells["index"].Value;
+                    SMSindex.Text = senderGrid.Rows[e.RowIndex].Cells["index"].Value.ToString();
                     SMSsender.Text = senderGrid.Rows[e.RowIndex].Cells["sender"].Value.ToString();
                     SMStime.Text = senderGrid.Rows[e.RowIndex].Cells["timeStamp"].Value.ToString();
-                    SMStext.Text = senderGrid.Rows[e.RowIndex].Cells["text"].Value.ToString(); ;
+                    SMStext.Text = senderGrid.Rows[e.RowIndex].Cells["text"].Value.ToString(); 
                 }
                 catch (NullReferenceException)
                 {
@@ -230,10 +270,14 @@ namespace WindowsFormsApplication2
             SMStext.Text = Decode.USC2ToString(SMStext.Text) + Environment.NewLine + Decode.Decode7bit(SMStext.Text);
         }
 
-        private Task<List<RecievedSMS>> getSms()
+        /// <summary>
+        /// Метод, возвращающий асинхронную задачу на получение списка входячих
+        /// </summary>
+        /// <returns></returns>
+        private Task<List<RecievedSMS>> LoadSmsInbox()
         {
             return Task.Run(() =>
-            {                
+            {
                 selectedPort.Inbox.Clear();
 
                 selectedPort.AtCommand("AT+CMGL=\"ALL\"");
@@ -245,6 +289,74 @@ namespace WindowsFormsApplication2
 
                 return selectedPort.Inbox;
             });
+        }
+
+        private void deleteMessageButton_Click(object sender, EventArgs e)
+        {
+            selectedPort.AtCommand("AT+CMGD=" + SMSList.CurrentRow.Cells["index"].Value);
+            ClearSMSInfo();
+            getSMSList();
+        }
+
+        /// <summary>
+        /// Заполнить таблицу данными
+        /// </summary>
+        /// <param name="inbox">список входящих сообщений</param>
+        private void FillSMSTable(List<RecievedSMS> inbox)
+        {
+            //предварительно очищаем таблицу
+            SMSList.Rows.Clear();
+            for (int i = 0; i < inbox.Count; i++)
+            {
+                //заполняем датагрид
+                SMSList.Rows.Add();
+                SMSList.Rows[i].Cells["index"].Value = inbox[i].Index;
+                SMSList.Rows[i].Cells["sender"].Value = inbox[i].Sender;
+                SMSList.Rows[i].Cells["timeStamp"].Value = inbox[i].Date;
+                SMSList.Rows[i].Cells["text"].Value = inbox[i].Message;
+            }
+            //????
+            inbox.Clear();
+        }
+
+        /// <summary>
+        /// очищаем поле соообщения
+        /// </summary>
+        private void ClearSMSInfo()
+        {
+            SMSindex.Text = "";
+            SMSsender.Text ="";
+            SMStime.Text = "";
+            SMStext.Text = "";
+        }
+
+        private async void DeleteAllSMS()
+        {
+            deleteAllButton.Enabled = false;
+
+            selectedPort.AtCommand("AT+CMGD=" + SMSList.CurrentRow.Cells["index"].Value + ",4");
+            await selectedPort.ResponseRecieved();
+
+            deleteAllButton.Enabled = true;
+        }
+
+        private void deleteAllButton_Click(object sender, EventArgs e)
+        {
+            var answer = MessageBox.Show("Вы уверены?", "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            switch (answer)
+            {
+                case DialogResult.No:
+                    break;
+                case DialogResult.Yes:
+                    DeleteAllSMS();
+                    getSMSList();
+                    break;
+            }
+        }
+
+        private void getResponseButton_Click(object sender, EventArgs e)
+        {
+            selectedPort.RecieveData();
         }
     }
 }
